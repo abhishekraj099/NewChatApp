@@ -30,7 +30,7 @@ import com.example.newchatapp.R
 
 @Preview(showBackground = true)
 @Composable
-fun SignInScreen(
+fun SignInScreenUI(
     onSignInClick: () -> Unit
 ) {
     val brush = Brush.linearGradient(

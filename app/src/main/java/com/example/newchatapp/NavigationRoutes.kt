@@ -3,8 +3,8 @@ package com.example.newchatapp
 import kotlinx.serialization.Serializable
 
 @Serializable
-object Start
+object StartScreen
 @Serializable
-object SignIn
+object SignInScreen
 @Serializable
-object Chats
+object ChatsScreen
