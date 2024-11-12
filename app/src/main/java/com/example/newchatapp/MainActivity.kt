@@ -62,13 +62,11 @@ class MainActivity : ComponentActivity() {
                                     } else {
                                         navController.navigate(SignInScreen)
                                     }
-                                    
+
                                 }
                             }
 
-                            composable<ChatsScreen> {
-                                ChatsScreenUI()
-                            }
+
 
                             composable<SignInScreen> {
                                 val launcher =
@@ -84,15 +82,18 @@ class MainActivity : ComponentActivity() {
                                                 }
 
 
-
                                             }
                                         })
 
 
                                 LaunchedEffect(key1 = state.isSignedIN) {
-                                    if (state.isSignedIN) {
+                                    val userData=googleAuthUiClient.getSignedInUser()
+                                    userData?.run {
+                                        viewModel.adduserToFirestore(userData)
                                         navController.navigate(ChatsScreen)
                                     }
+
+
 
                                 }
                                 SignInScreenUI(onSignInClick = {
@@ -105,6 +106,9 @@ class MainActivity : ComponentActivity() {
                                         )
                                     }
                                 })
+                            }
+                            composable<ChatsScreen> {
+                                ChatsScreenUI()
                             }
 
                         }
