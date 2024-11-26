@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,6 +14,7 @@ class ChatViewModel : ViewModel() {
     private val _state = MutableStateFlow(AppState())
     val state = _state.asStateFlow()
     private val userCollection = Firebase.firestore.collection(USER_COLLECTION)
+    var userDataListener: ListenerRegistration? = null
 
     fun resetState() {
         // Reset the state of the app
@@ -52,6 +54,19 @@ class ChatViewModel : ViewModel() {
                     Log.d(ContentValues.TAG, "User Data added to Firebase Failed")
                 }
             }
+        }
+
+    }
+
+    fun getUserData(userId: String) {
+        userDataListener = userCollection.document(userId).addSnapshotListener { value, error ->
+            if (value != null){
+                _state.update {
+                    it.copy(userData = value.toObject(UserData::class.java))
+                }
+
+            }
+
         }
 
     }

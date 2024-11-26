@@ -90,6 +90,7 @@ class MainActivity : ComponentActivity() {
                                     val userData=googleAuthUiClient.getSignedInUser()
                                     userData?.run {
                                         viewModel.adduserToFirestore(userData)
+                                        viewModel.getUserData(userData.userId)
                                         navController.navigate(ChatsScreen)
                                     }
 

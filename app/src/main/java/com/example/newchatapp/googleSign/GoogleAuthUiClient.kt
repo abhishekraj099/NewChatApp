@@ -44,7 +44,7 @@ class GoogleAuthUiClient(
                 .setServerClientId("175938540810-oon7h8l3tudcaigcuv86dcnjpls6j9fu.apps.googleusercontent.com")
                 .build()
 
-        ).setAutoSelectEnabled(true).build()
+        ).setAutoSelectEnabled(false).build()
     }
 
 
