@@ -16,5 +16,6 @@ data class UserData(
 data class AppState(
     val isSignedIN: Boolean = false,
     val userData: UserData? = null,
-    val signInError: String? = null
+    val signInError: String? = null,
+    val srEmail: String = ""
 )
