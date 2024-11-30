@@ -29,7 +29,7 @@ fun CustomDialogBox(
     addChat: () -> Unit={},
 ) {
     Dialog(
-        onDismissRequest = { hideDialog },
+        onDismissRequest = { hideDialog.invoke() },
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
             dismissOnClickOutside = false,
@@ -72,7 +72,7 @@ fun CustomDialogBox(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
                 ) {
-                    TextButton(onClick = { hideDialog() }) {
+                    TextButton(onClick = { hideDialog.invoke() }) {
                         Text(
                             text = "Cancel",
                             style = MaterialTheme.typography.bodyLarge,
@@ -81,7 +81,7 @@ fun CustomDialogBox(
 
                     }
 
-                    TextButton(onClick = { addChat() }) {
+                    TextButton(onClick = { addChat.invoke() }) {
                         Text(
                             text = "Add",
                             style = MaterialTheme.typography.bodyLarge,

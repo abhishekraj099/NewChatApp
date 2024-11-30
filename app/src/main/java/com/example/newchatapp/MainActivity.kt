@@ -58,6 +58,7 @@ class MainActivity : ComponentActivity() {
                                 LaunchedEffect(key1 = Unit) {
                                     val userData = googleAuthUiClient.getSignedInUser()
                                     if (userData != null) {
+                                        viewModel.getUserData(userData.userId)
                                         navController.navigate(ChatsScreen)
                                     } else {
                                         navController.navigate(SignInScreen)
@@ -109,7 +110,10 @@ class MainActivity : ComponentActivity() {
                                 })
                             }
                             composable<ChatsScreen> {
-                                ChatsScreenUI()
+                                ChatsScreenUI(
+                                    viewModel = viewModel,
+                                    state = state
+                                )
                             }
 
                         }
