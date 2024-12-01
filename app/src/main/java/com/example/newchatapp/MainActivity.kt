@@ -1,6 +1,7 @@
 package com.example.newchatapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -59,6 +60,7 @@ class MainActivity : ComponentActivity() {
                                     val userData = googleAuthUiClient.getSignedInUser()
                                     if (userData != null) {
                                         viewModel.getUserData(userData.userId)
+                                        viewModel.showChats(userData.userId)
                                         navController.navigate(ChatsScreen)
                                     } else {
                                         navController.navigate(SignInScreen)
@@ -88,13 +90,15 @@ class MainActivity : ComponentActivity() {
 
 
                                 LaunchedEffect(key1 = state.isSignedIN) {
-                                    val userData=googleAuthUiClient.getSignedInUser()
+                                    val userData = googleAuthUiClient.getSignedInUser()
                                     userData?.run {
                                         viewModel.adduserToFirestore(userData)
                                         viewModel.getUserData(userData.userId)
+                                        Log.d("My_TAG@", "onCreate: ${userData.userId}")
+                                        viewModel.showChats(userData.userId)
+                                        Log.d("My_TAG@", "onCreate: ${userData.userId}")
                                         navController.navigate(ChatsScreen)
                                     }
-
 
 
                                 }

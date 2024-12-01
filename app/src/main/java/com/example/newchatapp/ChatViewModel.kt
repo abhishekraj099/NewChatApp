@@ -2,12 +2,15 @@ package com.example.newchatapp
 
 import android.content.ContentValues
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.firestore
-import com.google.firebase.firestore.toObjects
+import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -17,6 +20,9 @@ class ChatViewModel : ViewModel() {
     val state = _state.asStateFlow()
     private val userCollection = Firebase.firestore.collection(USER_COLLECTION)
     var userDataListener: ListenerRegistration? = null
+    var chatListener: ListenerRegistration? = null
+    var chats by mutableStateOf<List<ChatData>>(emptyList())
+    var tp by mutableStateOf(ChatData())
 
     fun resetState() {
         // Reset the state of the app
@@ -101,10 +107,10 @@ class ChatViewModel : ViewModel() {
     fun addChat(email: String) {
         Firebase.firestore.collection(CHAT_COLLECTION).where(
             Filter.or(
-               Filter.and(
-                   Filter.equalTo("user1.email", email),
-                   Filter.equalTo("user2.email", state.value.userData?.email)
-               ),
+                Filter.and(
+                    Filter.equalTo("user1.email", email),
+                    Filter.equalTo("user2.email", state.value.userData?.email)
+                ),
                 Filter.and(
                     Filter.equalTo("user1.email", state.value.userData?.email),
                     Filter.equalTo("user2.email", email)
@@ -114,44 +120,61 @@ class ChatViewModel : ViewModel() {
             if (it.isEmpty) {
 
 
+                userCollection.whereEqualTo("email", email).get().addOnSuccessListener {
+                    if (it.isEmpty) {
+                        println("failed")
+                    } else {
 
+                        val chatPartner = it.toObjects(UserData::class.java).firstOrNull()
+                        val id = Firebase.firestore.collection(CHAT_COLLECTION).document().id
+                        val chat = ChatData(
+                            chatId = id,
+                            last = Message(
+                                senderID = "",
+                                content = "",
+                                time = null
+                            ),
+                            user1 = ChatUserData(
+                                userId = state.value.userData?.userId.toString(),
+                                typing = false,
+                                bio = state.value.userData?.bio.toString(),
+                                username = state.value.userData?.username.toString(),
+                                ppurl = state.value.userData?.ppurl.toString(),
+                                email = state.value.userData?.email.toString(),
+                            ),
+                            user2 = ChatUserData(
+                                bio = chatPartner?.bio.toString(),
+                                typing = false,
+                                username = chatPartner?.username.toString(),
+                                ppurl = chatPartner?.ppurl.toString(),
+                                email = chatPartner?.email.toString(),
+                                userId = chatPartner?.userId.toString(),
+                            )
+                        )
+                        Firebase.firestore.collection(CHAT_COLLECTION).document(id).set(chat)
 
-        userCollection.whereEqualTo("email", email).get().addOnSuccessListener {
-            if (it.isEmpty) {
-                println("failed")
-            } else {
-
-                  val chatPartner = it.toObjects(UserData::class.java).firstOrNull()
-                val id = Firebase.firestore.collection(CHAT_COLLECTION).document().id
-                val chat = ChatData(
-                    chatId = id,
-                    last = Message(
-                        senderID = "",
-                        content = "",
-                        time = null
-                    ),
-                    user1 = ChatUserData(
-                        userId = state.value.userData?.userId.toString(),
-                        typing = false,
-                        bio = state.value.userData?.bio.toString(),
-                        username = state.value.userData?.username.toString(),
-                        ppurl = state.value.userData?.ppurl.toString(),
-                        email = state.value.userData?.email.toString(),
-                    ),
-                    user2 = ChatUserData(
-                        bio = chatPartner?.bio.toString(),
-                        typing = false,
-                        username =chatPartner?.username.toString(),
-                        ppurl = chatPartner?.ppurl.toString(),
-                        email = chatPartner?.email.toString(),
-                        userId = chatPartner?.userId.toString(),
-                    )
-                )
-                Firebase.firestore.collection(CHAT_COLLECTION).document(id).set(chat)
-
+                    }
+                }
             }
         }
+    }
+    fun showChats(userId: String){
+        chatListener= Firebase.firestore.collection(CHAT_COLLECTION).where(
+            Filter.or(
+                Filter.equalTo("user1.userId", userId),
+                Filter.equalTo("user2.userId", userId)
+            )
+        ).addSnapshotListener{ value , error ->
+            if (value != null) {
+                chats= value.documents.mapNotNull {
+                    it.toObject<ChatData>()
+                }.sortedBy {
+                    it.last?.time
+                }.reversed()
             }
+
+
         }
+
     }
 }

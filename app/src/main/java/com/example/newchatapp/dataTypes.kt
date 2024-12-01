@@ -43,6 +43,7 @@ data class Message(
     val progress: String = "",
     val content: String = "",
     val time: Timestamp? = null,
+    val read : Boolean = false,
     val forwarded: Boolean = false,
 )
 
