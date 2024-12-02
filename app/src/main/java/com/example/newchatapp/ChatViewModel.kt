@@ -23,6 +23,8 @@ class ChatViewModel : ViewModel() {
     var chatListener: ListenerRegistration? = null
     var chats by mutableStateOf<List<ChatData>>(emptyList())
     var tp by mutableStateOf(ChatData())
+    var tpListener: ListenerRegistration? = null
+    var reply by mutableStateOf("")
 
     fun resetState() {
         // Reset the state of the app
@@ -158,15 +160,16 @@ class ChatViewModel : ViewModel() {
             }
         }
     }
-    fun showChats(userId: String){
-        chatListener= Firebase.firestore.collection(CHAT_COLLECTION).where(
+
+    fun showChats(userId: String) {
+        chatListener = Firebase.firestore.collection(CHAT_COLLECTION).where(
             Filter.or(
                 Filter.equalTo("user1.userId", userId),
                 Filter.equalTo("user2.userId", userId)
             )
-        ).addSnapshotListener{ value , error ->
+        ).addSnapshotListener { value, error ->
             if (value != null) {
-                chats= value.documents.mapNotNull {
+                chats = value.documents.mapNotNull {
                     it.toObject<ChatData>()
                 }.sortedBy {
                     it.last?.time
@@ -176,5 +179,23 @@ class ChatViewModel : ViewModel() {
 
         }
 
+    }
+
+    fun getTp(chatId: String) {
+        tpListener?.remove()
+        tpListener = Firebase.firestore.collection(CHAT_COLLECTION).document(chatId).addSnapshotListener{
+            snp , err->
+            if (snp != null) {
+                tp = snp.toObject(ChatData::class.java)!!
+            }
+        }
+    }
+
+    fun setChatUser(usr: ChatUserData, id: String) {
+     _state.update {
+         it.copy(
+             User2 = usr, chatId = id
+         )
+     }
     }
 }

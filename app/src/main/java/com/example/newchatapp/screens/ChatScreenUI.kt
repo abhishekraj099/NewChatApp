@@ -2,9 +2,12 @@ package com.example.newchatapp.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -56,12 +59,16 @@ import java.util.Locale
 
 @Preview(showSystemUi = true)
 @Composable
-fun ChatsScreenUI(viewModel: ChatViewModel = ChatViewModel(), state: AppState = AppState()) {
+fun ChatsScreenUI(
+    viewModel: ChatViewModel = ChatViewModel(),
+    state: AppState = AppState(),
+    showSingleChat: (ChatUserData, String)-> Unit
+) {
 
     val padding by animateDpAsState(targetValue = 10.dp, label = "")
     val chats = viewModel.chats
     val filterChats = chats
-    val selectedItem= remember {
+    val selectedItem = remember {
         mutableStateListOf<String>()
     }
 
@@ -141,10 +148,11 @@ fun ChatsScreenUI(viewModel: ChatViewModel = ChatViewModel(), state: AppState = 
                         it.user2
                     }
                     ChatItem(
-                        state=state,
+                        state = state,
                         chatUser!!,
                         chat = it,
-                        isSelected = selectedItem.contains(it.chatId)
+                        isSelected = selectedItem.contains(it.chatId),
+                        showSingleChat={user, id -> showSingleChat(user, id) }
 
                     )
 
@@ -155,13 +163,15 @@ fun ChatsScreenUI(viewModel: ChatViewModel = ChatViewModel(), state: AppState = 
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatItem(
     state: AppState,
     userData: ChatUserData,
     chat: ChatData,
     //mode: Boolean,
-    isSelected: Boolean
+    isSelected: Boolean,
+    showSingleChat: (ChatUserData, String)-> Unit
 ) {
     val formatter = remember {
         SimpleDateFormat(("hh:mm a"), Locale.getDefault())
@@ -172,7 +182,11 @@ fun ChatItem(
             .background(
                 color = color
             )
-            .fillMaxWidth()
+            .fillMaxWidth().clickable {
+                showSingleChat(
+                    userData, chat.chatId
+                )
+            }
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

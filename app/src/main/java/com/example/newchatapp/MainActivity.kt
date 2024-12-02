@@ -22,6 +22,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.newchatapp.googleSign.GoogleAuthUiClient
+import com.example.newchatapp.screens.ChatUI
 import com.example.newchatapp.screens.ChatsScreenUI
 import com.example.newchatapp.screens.SignInScreenUI
 import com.example.newchatapp.ui.theme.NewChatAppTheme
@@ -114,9 +115,28 @@ class MainActivity : ComponentActivity() {
                                 })
                             }
                             composable<ChatsScreen> {
+
                                 ChatsScreenUI(
                                     viewModel = viewModel,
-                                    state = state
+                                    state = state,
+                                    showSingleChat = {
+                                        usr , id ->
+                                        viewModel.getTp(id)
+                                        viewModel.setChatUser(usr, id)
+                                        navController.navigate(ChatScreen)
+                                    }
+                                )
+                            }
+                            composable<ChatScreen> {
+                                ChatUI(
+                                    viewModel= viewModel,
+                                     navController = navController,
+                                  //  message = viewModel
+                                    userData = state.User2!!,
+                                    chatId = state.chatId,
+                                    state = state, onBack = {
+                                        //navController.popBackStack()
+                                    }
                                 )
                             }
 
